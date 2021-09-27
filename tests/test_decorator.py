@@ -1,11 +1,12 @@
 import pandas as pd
 
-from pandas_type_checks.decorator import PandasArgument, PandasReturnValue, pandas_type_check
+from pandas_type_checks.core import SeriesReturnValue, SeriesArgument, DataFrameReturnValue, DataFrameArgument
+from pandas_type_checks.decorator import pandas_type_check
 
 
 def test_data_frame_argument(data_frame, data_frame_type):
 
-    @pandas_type_check(PandasArgument('arg', data_frame_type))
+    @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
         return arg
 
@@ -15,7 +16,7 @@ def test_data_frame_argument(data_frame, data_frame_type):
 
 def test_data_frame_return_value(data_frame, data_frame_type):
 
-    @pandas_type_check(PandasReturnValue(data_frame_type))
+    @pandas_type_check(DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.DataFrame:
         return data_frame
 
@@ -25,7 +26,7 @@ def test_data_frame_return_value(data_frame, data_frame_type):
 
 def test_series_argument(series, series_type):
 
-    @pandas_type_check(PandasArgument('arg', series_type))
+    @pandas_type_check(SeriesArgument('arg', series_type))
     def test_function(arg: pd.Series) -> pd.Series:
         return arg
 
@@ -35,7 +36,7 @@ def test_series_argument(series, series_type):
 
 def test_series_return_value(series, series_type):
 
-    @pandas_type_check(PandasReturnValue(series_type))
+    @pandas_type_check(SeriesReturnValue(series_type))
     def test_function() -> pd.Series:
         return series
 

@@ -1,17 +1,4 @@
-from typing import Any
-from dataclasses import dataclass
 from functools import wraps
-
-
-@dataclass
-class PandasArgument(object):
-    name: str
-    type: Any
-
-
-@dataclass
-class PandasReturnValue(object):
-    type: Any
 
 
 def pandas_type_check(*args, **kwargs):
