@@ -29,20 +29,41 @@ def pandas_type_check(*args, **kwargs):
             type_check_errors: Dict[str, List[PandasTypeCheckError]] = {}
 
             for arg in args:
-                if isinstance(arg, (DataFrameArgument, SeriesArgument)):
+                if isinstance(arg, DataFrameArgument):
                     # Check if wrapped function has an argument with the given name
                     if arg.name in func_spec.args:
-                        # Check if argument of wrapped function is a DataFrame or Series
+                        # Check if argument of wrapped function is a DataFrame
                         func_arg = func_args[func_spec.args.index(arg.name)]
-                        if not isinstance(func_arg, (pd.DataFrame, pd.Series)):
+                        if not isinstance(func_arg, pd.DataFrame):
                             raise PandasTypeCheckDecoratorException(
                                 f"Argument type mismatch. Expected argument '{arg.name}' of decorated "
-                                f"function '{func.__name__}' to be a Pandas DataFrame or Series but "
-                                f"found value of type '{str(type(func_arg))}'."
+                                f"function '{func.__name__}' to be a Pandas DataFrame but found value "
+                                f"of type '{str(type(func_arg))}'."
                             )
 
-                        # Compare DataFrame/Series structure of function argument
-                        # with the expected structure given in the type check marker
+                        # Compare DataFrame structure of function argument with
+                        # the expected structure given in the type check marker
+                        arg_type_check_errors: List[PandasTypeCheckError] = arg.type_check(func_arg, strict=strict)
+                        if arg_type_check_errors:
+                            type_check_errors[arg.name] = arg_type_check_errors
+                    else:
+                        raise PandasTypeCheckDecoratorException(
+                            f"Decorated function '{func.__name__}' has no parameter '{arg.name}'."
+                        )
+                elif isinstance(arg, SeriesArgument):
+                    # Check if wrapped function has an argument with the given name
+                    if arg.name in func_spec.args:
+                        # Check if argument of wrapped function is a Series
+                        func_arg = func_args[func_spec.args.index(arg.name)]
+                        if not isinstance(func_arg, pd.Series):
+                            raise PandasTypeCheckDecoratorException(
+                                f"Argument type mismatch. Expected argument '{arg.name}' of decorated "
+                                f"function '{func.__name__}' to be a Pandas Series but found value of "
+                                f"type '{str(type(func_arg))}'."
+                            )
+
+                        # Compare Series structure of function argument with
+                        # the expected structure given in the type check marker
                         arg_type_check_errors: List[PandasTypeCheckError] = arg.type_check(func_arg, strict=strict)
                         if arg_type_check_errors:
                             type_check_errors[arg.name] = arg_type_check_errors
