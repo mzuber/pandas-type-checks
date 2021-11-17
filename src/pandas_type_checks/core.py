@@ -1,4 +1,4 @@
-from typing import Dict, Any, Union, Optional, List
+from typing import Dict, Any, Union, Optional, List, Type
 
 import pandas as pd
 import numpy as np
@@ -38,6 +38,11 @@ class SeriesReturnValue(object):
     def __init__(self, dtype: Union[str, np.dtype, ExtensionDtype]):
         self.dtype = dtype
 
+    @property
+    def corresponding_pandas_type(self) -> Type:
+        """Get the Pandas type corresponding to this type check decorator argument."""
+        return pd.Series
+
     def type_check(self, series: pd.Series, strict: bool = False) -> List[PandasTypeCheckError]:
         pass
 
@@ -72,6 +77,11 @@ class DataFrameReturnValue(object):
 
     def __init__(self, dtype: Dict[str, Any]):
         self.dtype = dtype
+
+    @property
+    def corresponding_pandas_type(self) -> Type:
+        """Get the Pandas type corresponding to this type check decorator argument."""
+        return pd.DataFrame
 
     def type_check(self, data_frame: pd.DataFrame, strict: bool = False) -> List[PandasTypeCheckError]:
 

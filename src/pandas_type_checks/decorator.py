@@ -28,23 +28,25 @@ def pandas_type_check(*args, **kwargs):
             # Argument name -> type check errors found for given argument
             type_check_errors: Dict[str, List[PandasTypeCheckError]] = {}
 
-            def check_pandas_arg(decorator_arg: Union[DataFrameArgument, SeriesArgument],
-                                 expected_function_arg_type: Union[Type[pd.DataFrame], Type[pd.Series]]
-                                 ) -> List[PandasTypeCheckError]:
+            def check_pandas_arg(decorator_arg: Union[DataFrameArgument, SeriesArgument]) -> List[PandasTypeCheckError]:
                 """Type check Pandas DataFrame and Series arguments."""
                 # Check if wrapped function has an argument with the given name
                 if decorator_arg.name in func_spec.args:
                     # Check if argument of wrapped function is a DataFrame
                     func_arg = func_args[func_spec.args.index(decorator_arg.name)]
-                    if isinstance(func_arg, expected_function_arg_type):
+                    if isinstance(decorator_arg, DataFrameArgument) and isinstance(func_arg, pd.DataFrame):
                         # Compare DataFrame structure of function argument with
                         # the expected structure given in the type check marker
+                        return decorator_arg.type_check(func_arg, strict=strict)
+                    elif isinstance(decorator_arg, SeriesArgument) and isinstance(func_arg, pd.Series):
+                        # Compare Series type of function argument with
+                        # the expected type given in the type check marker
                         return decorator_arg.type_check(func_arg, strict=strict)
                     else:
                         raise PandasTypeCheckDecoratorException(
                             f"Argument type mismatch. Expected argument '{decorator_arg.name}' of decorated function "
-                            f"'{func.__name__}' to be of type '{expected_function_arg_type.__qualname__}' but found "
-                            f"value of type '{type(func_arg).__qualname__}'."
+                            f"'{func.__name__}' to be of type '{decorator_arg.corresponding_pandas_type.__qualname__}' "
+                            f"but found value of type '{type(func_arg).__qualname__}'."
                         )
                 else:
                     raise PandasTypeCheckDecoratorException(
@@ -53,12 +55,8 @@ def pandas_type_check(*args, **kwargs):
 
             # Perform type checks for Pandas arguments and return value defined in decorator
             for arg in args:
-                if isinstance(arg, DataFrameArgument):
-                    arg_type_check_errors: List[PandasTypeCheckError] = check_pandas_arg(arg, pd.DataFrame)
-                    if arg_type_check_errors:
-                        type_check_errors[arg.name] = arg_type_check_errors
-                elif isinstance(arg, SeriesArgument):
-                    arg_type_check_errors: List[PandasTypeCheckError] = check_pandas_arg(arg, pd.Series)
+                if isinstance(arg, (DataFrameArgument, SeriesArgument)):
+                    arg_type_check_errors: List[PandasTypeCheckError] = check_pandas_arg(arg)
                     if arg_type_check_errors:
                         type_check_errors[arg.name] = arg_type_check_errors
                 elif isinstance(arg, (DataFrameReturnValue, SeriesReturnValue)):
