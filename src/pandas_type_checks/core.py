@@ -43,8 +43,28 @@ class SeriesReturnValue(object):
         """Get the Pandas type corresponding to this type check decorator argument."""
         return pd.Series
 
-    def type_check(self, series: pd.Series, strict: bool = False) -> List[PandasTypeCheckError]:
-        pass
+    def type_check(self, series: pd.Series) -> List[PandasTypeCheckError]:
+        """Type check the given Pandas Series.
+
+        Compare the 'dtype' of the given Pandas Series with the expected 'dtype' defined in this type check marker.
+
+        Args:
+            series: The Pandas Series to be type checked against this type check marker
+
+        Returns:
+            A list of all type check errors which occurred when type checking the given Pandas Series.
+            If the type check succeeds an empty list will be returned.
+        """
+        type_check_errors: List[PandasTypeCheckError] = []
+
+        if series.dtype != self.dtype:
+            error_msg = f"Expected Series of type '{self.dtype}' but found type '{series.dtype}'"
+            type_check_error = PandasTypeCheckError(error_msg=error_msg,
+                                                    expected_type=self.dtype,
+                                                    given_type=series.dtype)
+            type_check_errors.append(type_check_error)
+
+        return type_check_errors
 
 
 class SeriesArgument(SeriesReturnValue):

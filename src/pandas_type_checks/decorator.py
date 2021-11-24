@@ -41,7 +41,7 @@ def pandas_type_check(*args, **kwargs):
                     elif isinstance(decorator_arg, SeriesArgument) and isinstance(func_arg, pd.Series):
                         # Compare Series type of function argument with
                         # the expected type given in the type check marker
-                        return decorator_arg.type_check(func_arg, strict=strict)
+                        return decorator_arg.type_check(func_arg)
                     else:
                         raise PandasTypeCheckDecoratorException(
                             f"Argument type mismatch. Expected argument '{decorator_arg.name}' of decorated function "
