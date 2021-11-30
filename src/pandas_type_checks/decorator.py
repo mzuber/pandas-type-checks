@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from typing import List, Dict, Union, Type
+from typing import List, Dict, Optional, Union
 
 import pandas as pd
 
@@ -53,14 +53,20 @@ def pandas_type_check(*args, **kwargs):
                         f"Decorated function '{func.__name__}' has no parameter '{decorator_arg.name}'."
                     )
 
-            # Perform type checks for Pandas arguments and return value defined in decorator
+            # Perform type checks for Pandas arguments defined in decorator
+            ret_value_type_marker: Optional[Union[DataFrameReturnValue, SeriesReturnValue]] = None
             for arg in args:
                 if isinstance(arg, (DataFrameArgument, SeriesArgument)):
                     arg_type_check_errors: List[PandasTypeCheckError] = check_pandas_arg(arg)
                     if arg_type_check_errors:
                         type_check_errors[arg.name] = arg_type_check_errors
                 elif isinstance(arg, (DataFrameReturnValue, SeriesReturnValue)):
-                    pass
+                    if not ret_value_type_marker:
+                        ret_value_type_marker = arg
+                    else:
+                        raise PandasTypeCheckDecoratorException(
+                            "Only one return value type marker allowed in type check decorator."
+                        )
                 else:
                     raise PandasTypeCheckDecoratorException(
                         f"Unsupported argument for decorator. Expected argument of type "
@@ -69,13 +75,34 @@ def pandas_type_check(*args, **kwargs):
                         f"found type '{type(arg).__qualname__}'."
                     )
 
+            # Execute wrapped function
+            ret_value = func(*func_args, **func_kwargs)
+
+            # Perform type checks for Pandas return value defined in decorator
+            ret_value_type_check_errors: List[PandasTypeCheckError] = []
+            if ret_value_type_marker:
+                if isinstance(ret_value_type_marker, DataFrameReturnValue) and isinstance(ret_value, pd.DataFrame):
+                    # Compare DataFrame structure of return value with the
+                    # expected structure given in the type check marker
+                    ret_value_type_check_errors += ret_value_type_marker.type_check(ret_value, strict=strict)
+                elif isinstance(ret_value_type_marker, SeriesReturnValue) and isinstance(ret_value, pd.Series):
+                    # Compare Series type of return value with the
+                    # expected type given in the type check marker
+                    ret_value_type_check_errors += ret_value_type_marker.type_check(ret_value)
+                else:
+                    raise PandasTypeCheckDecoratorException(
+                        f"Return value type mismatch. Expected return value of decorated function '{func.__name__}' "
+                        f"to be of type '{ret_value_type_marker.corresponding_pandas_type.__qualname__}' but found "
+                        f"value of type '{type(ret_value).__qualname__}'."
+                    )
+
             # Raise type error if any type check errors were found for any of the Pandas arguments or return value
             if type_check_errors:
                 # TODO: Build error message containing all collected type check errors
                 error_msg = str(type_check_errors)
                 raise TypeError(error_msg)
 
-            return func(*func_args, **func_kwargs)
+            return ret_value
 
         return pandas_type_check_wrapper
 
