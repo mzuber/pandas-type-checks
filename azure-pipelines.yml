@@ -1,33 +1,33 @@
-trigger:
-  - main
-
-pr:
-  - main
+#trigger:
+#  - main
+#
+#pr:
+#  - main
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.9'
-  displayName: 'Use Python 3.9'
-# Run tox
-- script: |
-    python -m pip install --upgrade pip
-    pip install tox
-  displayName: 'Install dependencies'
-- script: 'tox -e py'
-  displayName: Run Tox
-# Publish test results and code coverage report
-- task: PublishTestResults@2
-  displayName: Publish test results
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '$(Build.SourcesDirectory)/junit/test_results.xml'
-- task: PublishCodeCoverageResults@1
-  displayName: Publish code coverage results
-  inputs:
-    codeCoverageTool: 'cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
-    pathToSources: '$(Build.SourcesDirectory)/src/'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.9'
+    displayName: 'Use Python 3.9'
+  # Run tox
+  - script: |
+      python -m pip install --upgrade pip
+      pip install tox
+    displayName: 'Install dependencies'
+  - script: 'tox -e py'
+    displayName: Run Tox
+  # Publish test results and code coverage report
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(Build.SourcesDirectory)/junit/test_results.xml'
+  - task: PublishCodeCoverageResults@1
+    displayName: Publish code coverage results
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
+      pathToSources: '$(Build.SourcesDirectory)/src/'
