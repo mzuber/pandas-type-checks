@@ -1,7 +1,7 @@
-#trigger:
+trigger: none
 #  - main
-#
-#pr:
+
+pr: none
 #  - main
 
 pool:
