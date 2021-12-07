@@ -57,6 +57,21 @@ def test_argument_type_mismatch(data_frame_type):
         test_function("string")
 
 
+def test_return_value_type_mismatch(data_frame_type):
+
+    return_value = 0
+
+    @pandas_type_check(DataFrameReturnValue(data_frame_type))
+    def test_function():
+        return return_value
+
+    with pytest.raises(PandasTypeCheckDecoratorException,
+                       match=f"Return value type mismatch. Expected return value of decorated function "
+                             f"'{test_function.__name__}' to be of type '{pd.DataFrame.__qualname__}' but "
+                             f"found value of type '{type(return_value).__qualname__}'."):
+        test_function()
+
+
 def test_unknown_argument(data_frame_type):
     # Decorated function has no arguments
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
@@ -88,4 +103,14 @@ def test_unsupported_decorator_argument():
                              f"'{DataFrameArgument.__qualname__}', '{DataFrameReturnValue.__qualname__}', "
                              f"'{SeriesArgument.__qualname__}', or '{SeriesReturnValue.__qualname__}' but "
                              f"found type 'str'."):
+        test_function()
+
+
+def test_multiple_return_value_decorator_arguments(series, series_type, data_frame_type):
+    @pandas_type_check(SeriesReturnValue(series_type), DataFrameReturnValue(data_frame_type))
+    def test_function() -> pd.Series:
+        return series
+
+    with pytest.raises(PandasTypeCheckDecoratorException,
+                       match="Only one return value type marker allowed in type check decorator."):
         test_function()
