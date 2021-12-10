@@ -119,8 +119,8 @@ class DataFrameReturnValue(object):
             else:
                 column_type = data_frame[column_name].dtype
                 if column_type != expected_column_type:
-                    error_msg = f"""Expected type '{expected_column_type}' for column  "
-                                    '{column_name}' but found type '{column_type}'"""
+                    error_msg = (f"Expected type '{expected_column_type}' for column "
+                                 f"{column_name}' but found type '{column_type}'")
                     type_check_error = PandasTypeCheckError(error_msg=error_msg,
                                                             expected_type=expected_column_type,
                                                             given_type=column_type,

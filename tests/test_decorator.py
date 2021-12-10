@@ -45,15 +45,83 @@ def test_series_return_value(series, series_type):
     assert result.equals(series) is True
 
 
-def test_argument_type_mismatch(data_frame_type):
+def test_type_error_for_data_frame_argument(data_frame_type, wrong_data_frame):
+
+    @pandas_type_check(DataFrameArgument('arg', data_frame_type))
+    def test_function(arg: pd.DataFrame) -> pd.DataFrame:
+        return arg
+
+    with pytest.raises(TypeError,
+                       match="Pandas type error\n"
+                             "Type error in argument 'arg':\n"
+                             "\tExpected type 'float64' for column A' but found type 'int64'\n"
+                             "\tMissing column in DataFrame: 'B'"):
+        test_function(wrong_data_frame)
+
+
+def test_type_error_for_data_frame_return_value(data_frame_type, wrong_data_frame):
+
+    @pandas_type_check(DataFrameReturnValue(data_frame_type))
+    def test_function() -> pd.DataFrame:
+        return wrong_data_frame
+
+    with pytest.raises(TypeError,
+                       match="Pandas type error\n"
+                             "Type error in return value:\n"
+                             "\tExpected type 'float64' for column A' but found type 'int64'\n"
+                             "\tMissing column in DataFrame: 'B'"):
+        test_function()
+
+
+def test_type_error_for_series_argument(series_type, wrong_series):
+
+    @pandas_type_check(SeriesArgument('arg', series_type))
+    def test_function(arg: pd.Series) -> pd.Series:
+        return arg
+
+    with pytest.raises(TypeError,
+                       match="Pandas type error\n"
+                             "Type error in argument 'arg':\n"
+                             "\tExpected Series of type 'int64' but found type 'float64'"):
+        test_function(wrong_series)
+
+
+def test_type_error_for_series_return_value(series_type, wrong_series):
+
+    @pandas_type_check(SeriesReturnValue(series_type))
+    def test_function() -> pd.Series:
+        return wrong_series
+
+    with pytest.raises(TypeError,
+                       match="Pandas type error\n"
+                             "Type error in return value:\n"
+                             "\tExpected Series of type 'int64' but found type 'float64'"):
+        test_function()
+
+
+def test_data_frame_argument_type_mismatch(data_frame_type):
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: str) -> str:
         return arg
 
     with pytest.raises(PandasTypeCheckDecoratorException,
-                       match="Argument type mismatch. Expected argument 'arg' of decorated function "
-                             "'test_function' to be of type 'DataFrame' but found value of type 'str'."):
+                       match=f"Argument type mismatch. Expected argument 'arg' of decorated function "
+                             f"'{test_function.__name__}' to be of type '{pd.DataFrame.__qualname__}' "
+                             f"but found value of type 'str'."):
+        test_function("string")
+
+
+def test_series_argument_type_mismatch(series_type):
+
+    @pandas_type_check(SeriesArgument('arg', series_type))
+    def test_function(arg: str) -> str:
+        return arg
+
+    with pytest.raises(PandasTypeCheckDecoratorException,
+                       match=f"Argument type mismatch. Expected argument 'arg' of decorated function "
+                             f"'{test_function.__name__}' to be of type '{pd.Series.__qualname__}' "
+                             f"but found value of type 'str'."):
         test_function("string")
 
 
@@ -107,6 +175,7 @@ def test_unsupported_decorator_argument():
 
 
 def test_multiple_return_value_decorator_arguments(series, series_type, data_frame_type):
+
     @pandas_type_check(SeriesReturnValue(series_type), DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.Series:
         return series

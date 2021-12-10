@@ -6,6 +6,7 @@ import pandas as pd
 
 from pandas_type_checks.core import DataFrameArgument, DataFrameReturnValue, SeriesArgument, SeriesReturnValue
 from pandas_type_checks.core import PandasTypeCheckError
+from pandas_type_checks.util import build_exception_message
 
 
 class PandasTypeCheckDecoratorException(Exception):
@@ -26,7 +27,7 @@ def pandas_type_check(*args, **kwargs):
             strict: bool = kwargs.get('strict', False)
 
             # Argument name -> type check errors found for given argument
-            type_check_errors: Dict[str, List[PandasTypeCheckError]] = {}
+            arg_type_check_errors: Dict[str, List[PandasTypeCheckError]] = {}
 
             def check_pandas_arg(decorator_arg: Union[DataFrameArgument, SeriesArgument]) -> List[PandasTypeCheckError]:
                 """Type check Pandas DataFrame and Series arguments."""
@@ -57,9 +58,9 @@ def pandas_type_check(*args, **kwargs):
             ret_value_type_marker: Optional[Union[DataFrameReturnValue, SeriesReturnValue]] = None
             for arg in args:
                 if isinstance(arg, (DataFrameArgument, SeriesArgument)):
-                    arg_type_check_errors: List[PandasTypeCheckError] = check_pandas_arg(arg)
-                    if arg_type_check_errors:
-                        type_check_errors[arg.name] = arg_type_check_errors
+                    dataframe_arg_type_check_errors: List[PandasTypeCheckError] = check_pandas_arg(arg)
+                    if dataframe_arg_type_check_errors:
+                        arg_type_check_errors[arg.name] = dataframe_arg_type_check_errors
                 elif isinstance(arg, (DataFrameReturnValue, SeriesReturnValue)):
                     if not ret_value_type_marker:
                         ret_value_type_marker = arg
@@ -97,9 +98,8 @@ def pandas_type_check(*args, **kwargs):
                     )
 
             # Raise type error if any type check errors were found for any of the Pandas arguments or return value
-            if type_check_errors:
-                # TODO: Build error message containing all collected type check errors
-                error_msg = str(type_check_errors)
+            if arg_type_check_errors or ret_value_type_check_errors:
+                error_msg = build_exception_message(arg_type_check_errors, ret_value_type_check_errors)
                 raise TypeError(error_msg)
 
             return ret_value
