@@ -14,7 +14,7 @@ setup(
     name='pandas-type-checks',
     version=version,
     author='Martin Zuber',
-    author_email='martin.zuber@@sap.com',
+    author_email='martin.zuber@sap.com',
     description='Structural type checking for Pandas data frames.',
     license='BSD',
     keywords=[
