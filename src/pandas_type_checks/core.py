@@ -12,13 +12,14 @@ class PandasTypeCheckError(object):
 
     Attributes:
         error_msg: Error message
-        expected_type: Expected type for the data frame column or series
+        expected_type: (Optional) Expected type for the data frame column or series
         given_type: (Optional) Actual type of the data frame column or series
         column_name: (Optional) Data frame column name, set if error occurred
                      when type checking a column of a data frame
     """
 
-    def __init__(self, error_msg: str, expected_type: Any,
+    def __init__(self, error_msg: str, 
+                 expected_type: Optional[Any] = None,
                  given_type: Optional[Any] = None,
                  column_name: Optional[str] = None):
         self.error_msg = error_msg
@@ -106,9 +107,21 @@ class DataFrameReturnValue(object):
     def type_check(self, data_frame: pd.DataFrame, strict: bool = False) -> List[PandasTypeCheckError]:
 
         type_check_errors: List[PandasTypeCheckError] = []
-        reference_data_frame = pd.DataFrame(columns=self.dtype.keys()).astype(self.dtype)
+        reference_columns = list(self.dtype.keys())
+        reference_data_frame = pd.DataFrame(columns=reference_columns).astype(self.dtype)
 
-        for column_name in self.dtype.keys():
+        if strict:
+            unspecified_columns = set(data_frame.columns).difference(reference_columns)
+            if unspecified_columns:
+                unspecified_column_errors = [
+                    PandasTypeCheckError(error_msg=f"Found unspecified column in data frame: '{unspecified_column}'",
+                                         given_type=data_frame[unspecified_column].dtype,
+                                         column_name=unspecified_column)
+                    for unspecified_column in unspecified_columns
+                ]
+                type_check_errors.extend(unspecified_column_errors)
+
+        for column_name in reference_columns:
             expected_column_type = reference_data_frame[column_name].dtype
 
             if column_name not in data_frame.columns:

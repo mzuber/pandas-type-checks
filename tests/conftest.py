@@ -40,6 +40,26 @@ def wrong_data_frame(wrong_data_frame_type) -> pd.DataFrame:
 
 
 @pytest.fixture(scope='session')
+def extended_data_frame_type() -> Dict[str, Any]:
+    return {
+        'A': np.dtype('float64'),
+        'B': np.dtype('int64'),
+        'C': 'string',
+        'D': 'string'
+    }
+
+
+@pytest.fixture(scope='session')
+def extended_data_frame(extended_data_frame_type) -> pd.DataFrame:
+    return pd.DataFrame({
+        'A': [1.0],
+        'B': [1],
+        'C': ['foo'],
+        'D': ['bar']
+    }).astype(extended_data_frame_type)
+
+
+@pytest.fixture(scope='session')
 def series_type() -> np.dtype:
     return np.dtype('int64')
 

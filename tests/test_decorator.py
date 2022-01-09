@@ -73,6 +73,32 @@ def test_type_error_for_data_frame_return_value(data_frame_type, wrong_data_fram
         test_function()
 
 
+def test_strict_type_check_for_data_frame_argument(data_frame_type, extended_data_frame):
+
+    @pandas_type_check(DataFrameArgument('arg', data_frame_type), strict=True)
+    def test_function(arg: pd.DataFrame) -> pd.DataFrame:
+        return arg
+    
+    with pytest.raises(TypeError,
+                       match="Pandas type error\n"
+                             "Type error in argument 'arg':\n"
+                             "\tFound unspecified column in data frame: 'D'"):
+        test_function(extended_data_frame)
+
+
+def test_strict_type_check_for_data_frame_return_value(data_frame_type, extended_data_frame):
+
+    @pandas_type_check(DataFrameReturnValue(data_frame_type), strict=True)
+    def test_function() -> pd.DataFrame:
+        return extended_data_frame
+
+    with pytest.raises(TypeError,
+                       match="Pandas type error\n"
+                             "Type error in return value:\n"
+                             "\tFound unspecified column in data frame: 'D'"):
+        test_function()
+
+
 def test_type_error_for_series_argument(series_type, wrong_series):
 
     @pandas_type_check(SeriesArgument('arg', series_type))
