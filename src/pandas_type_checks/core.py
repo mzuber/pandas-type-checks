@@ -18,7 +18,7 @@ class PandasTypeCheckError(object):
                      when type checking a column of a data frame
     """
 
-    def __init__(self, error_msg: str, 
+    def __init__(self, error_msg: str,
                  expected_type: Optional[Any] = None,
                  given_type: Optional[Any] = None,
                  column_name: Optional[str] = None):

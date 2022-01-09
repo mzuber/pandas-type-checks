@@ -78,7 +78,7 @@ def test_strict_type_check_for_data_frame_argument(data_frame_type, extended_dat
     @pandas_type_check(DataFrameArgument('arg', data_frame_type), strict=True)
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
         return arg
-    
+
     with pytest.raises(TypeError,
                        match="Pandas type error\n"
                              "Type error in argument 'arg':\n"
