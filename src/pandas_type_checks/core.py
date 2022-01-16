@@ -45,9 +45,9 @@ class SeriesReturnValue(object):
         return pd.Series
 
     def type_check(self, series: pd.Series) -> List[PandasTypeCheckError]:
-        """Type check the given Pandas Series.
+        """Type check the given Pandas Series against this type specification.
 
-        Compare the 'dtype' of the given Pandas Series with the expected 'dtype' defined in this type check marker.
+        Compare the 'dtype' of the given Pandas Series with the expected 'dtype' defined in this type specification.
 
         Args:
             series: The Pandas Series to be type checked against this type check marker
@@ -105,7 +105,18 @@ class DataFrameReturnValue(object):
         return pd.DataFrame
 
     def type_check(self, data_frame: pd.DataFrame, strict: bool = False) -> List[PandasTypeCheckError]:
+        """Type check the structure of the given data frame against this type specification.
 
+        Args:
+            data_frame: Pandas data frame to type check against this type specification
+            strict: Flag for strict type check mode. If strict type checking is enabled the given dataframe
+                cannot contain columns which are not part of this type specification. Disabling strict type
+                checking in that sense allows a form of structural subtyping for data frames.
+
+        Returns:
+            A list of errors which occurred when type checking the given data frame.
+            If and only if no type errors are found, this method returns an empty list.
+        """
         type_check_errors: List[PandasTypeCheckError] = []
         reference_columns = list(self.dtype.keys())
         reference_data_frame = pd.DataFrame(columns=reference_columns).astype(self.dtype)

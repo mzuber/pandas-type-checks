@@ -15,6 +15,22 @@ class PandasTypeCheckDecoratorException(Exception):
 
 
 def pandas_type_check(*args, **kwargs):
+    """A decorator for type checking Pandas data frame and series arguments and return value of a function.
+
+    Args:
+        *args: Type specifications for Pandas data frame and series arguments and return value of the decorated function
+
+    Keyword Arguments:
+        strict (bool): Flag for strict type check mode. If strict type checking is enabled data frames cannot contain
+            columns which are not part of type specification against which they are checked.
+            Disabling strict type checking in that sense allows a form of structural subtyping for data frames.
+
+    Raises:
+        PandasTypeCheckDecoratorException: An error occurred specifying the Pandas types for the arguments and return
+            value of the decorated function
+        TypeError: Errors occurred when type checking the Pandas data frame and series arguments and return value of
+            the decorated function against the given type specification
+    """
 
     def pandas_type_check_decorator(func):
 
