@@ -22,9 +22,10 @@ def pandas_type_check(*args, **kwargs):
         *args: Type specifications for Pandas data frame and series arguments and return value of the decorated function
 
     Keyword Arguments:
-        strict (bool): Flag for strict type check mode. If strict type checking is enabled data frames cannot contain
-            columns which are not part of type specification against which they are checked.
-            Disabling strict type checking in that sense allows a form of structural subtyping for data frames.
+        strict (bool): Flag for strict type check mode. Keyword argument overrides global configuration.
+            If strict type checking is enabled data frames cannot contain columns which are not part of the type
+            specification against which they are checked. Non-strict type checking in that sense allows a form of
+            structural subtyping for data frames.
 
     Raises:
         PandasTypeCheckDecoratorException: An error occurred specifying the Pandas types for the arguments and return
@@ -41,7 +42,7 @@ def pandas_type_check(*args, **kwargs):
             func_spec = inspect.getfullargspec(func)
 
             # Evaluate query args of the decorator
-            strict: bool = kwargs.get('strict', False)
+            strict: bool = kwargs.get('strict', pandas_type_checks_config.strict_type_checks)
 
             # Argument name -> type check errors found for given argument
             arg_type_check_errors: Dict[str, List[PandasTypeCheckError]] = {}

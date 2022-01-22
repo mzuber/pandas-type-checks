@@ -12,12 +12,18 @@ class PandasTypeCheckConfiguration(object):
 
     Attributes:
         enable_type_checks (bool): Flag for enabling/disabling type checks for specified arguments and return
-        values. Defaults to True. This flag can be used to globally enable or disable the type checker in
-        certain environments.
+            values Defaults to True. This flag can be used to globally enable or disable the type checker in
+            certain environments.
+        strict_type_checks (bool): Flag for strict type check mode. Defaults to False.
+            If strict type checking is enabled data frames cannot contain columns which are not part of the type
+            specification against which they are checked. Non-strict type checking in that sense allows a form of
+            structural subtyping for data frames.
     """
 
-    def __init__(self, enable_type_checks: bool = True):
+    def __init__(self, enable_type_checks: bool = True,
+                 strict_type_checks: bool = False):
         self.enable_type_checks = enable_type_checks
+        self.strict_type_checks = strict_type_checks
 
 
 config = PandasTypeCheckConfiguration()
@@ -121,7 +127,7 @@ class DataFrameReturnValue(object):
         """Get the Pandas type corresponding to this type check decorator argument."""
         return pd.DataFrame
 
-    def type_check(self, data_frame: pd.DataFrame, strict: bool = False) -> List[PandasTypeCheckError]:
+    def type_check(self, data_frame: pd.DataFrame, strict: bool) -> List[PandasTypeCheckError]:
         """Type check the structure of the given data frame against this type specification.
 
         Args:
