@@ -6,6 +6,23 @@ import numpy as np
 from pandas.core.dtypes.base import ExtensionDtype
 
 
+class PandasTypeCheckConfiguration(object):
+    """
+    A class for global configuration of the Pandas type check functionality.
+
+    Attributes:
+        enable_type_checks (bool): Flag for enabling/disabling type checks for specified arguments and return
+        values. Defaults to True. This flag can be used to globally enable or disable the type checker in
+        certain environments.
+    """
+
+    def __init__(self, enable_type_checks: bool = True):
+        self.enable_type_checks = enable_type_checks
+
+
+config = PandasTypeCheckConfiguration()
+
+
 class PandasTypeCheckError(object):
     """
     Error-related information when type checking a Pandas data frame or series.

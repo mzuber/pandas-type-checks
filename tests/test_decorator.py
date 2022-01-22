@@ -1,51 +1,57 @@
 import pytest
 import pandas as pd
 
+from pandas_type_checks import config
 from pandas_type_checks.core import SeriesReturnValue, SeriesArgument, DataFrameReturnValue, DataFrameArgument
 from pandas_type_checks.decorator import pandas_type_check, PandasTypeCheckDecoratorException
 
 
 def test_data_frame_argument(data_frame, data_frame_type):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
         return arg
 
     result = test_function(data_frame)
-    assert result.equals(data_frame) is True
+    pd.testing.assert_frame_equal(result, data_frame)
 
 
 def test_data_frame_return_value(data_frame, data_frame_type):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.DataFrame:
         return data_frame
 
     result = test_function()
-    assert result.equals(data_frame) is True
+    pd.testing.assert_frame_equal(result, data_frame)
 
 
 def test_series_argument(series, series_type):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(SeriesArgument('arg', series_type))
     def test_function(arg: pd.Series) -> pd.Series:
         return arg
 
     result = test_function(series)
-    assert result.equals(series) is True
+    pd.testing.assert_series_equal(result, series)
 
 
 def test_series_return_value(series, series_type):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(SeriesReturnValue(series_type))
     def test_function() -> pd.Series:
         return series
 
     result = test_function()
-    assert result.equals(series) is True
+    pd.testing.assert_series_equal(result, series)
 
 
 def test_type_error_for_data_frame_argument(data_frame_type, wrong_data_frame):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
@@ -60,6 +66,7 @@ def test_type_error_for_data_frame_argument(data_frame_type, wrong_data_frame):
 
 
 def test_type_error_for_data_frame_return_value(data_frame_type, wrong_data_frame):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.DataFrame:
@@ -74,6 +81,7 @@ def test_type_error_for_data_frame_return_value(data_frame_type, wrong_data_fram
 
 
 def test_strict_type_check_for_data_frame_argument(data_frame_type, extended_data_frame):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type), strict=True)
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
@@ -87,6 +95,7 @@ def test_strict_type_check_for_data_frame_argument(data_frame_type, extended_dat
 
 
 def test_strict_type_check_for_data_frame_return_value(data_frame_type, extended_data_frame):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(DataFrameReturnValue(data_frame_type), strict=True)
     def test_function() -> pd.DataFrame:
@@ -100,6 +109,7 @@ def test_strict_type_check_for_data_frame_return_value(data_frame_type, extended
 
 
 def test_type_error_for_series_argument(series_type, wrong_series):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(SeriesArgument('arg', series_type))
     def test_function(arg: pd.Series) -> pd.Series:
@@ -113,6 +123,7 @@ def test_type_error_for_series_argument(series_type, wrong_series):
 
 
 def test_type_error_for_series_return_value(series_type, wrong_series):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(SeriesReturnValue(series_type))
     def test_function() -> pd.Series:
@@ -126,6 +137,7 @@ def test_type_error_for_series_return_value(series_type, wrong_series):
 
 
 def test_data_frame_argument_type_mismatch(data_frame_type):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: str) -> str:
@@ -139,6 +151,7 @@ def test_data_frame_argument_type_mismatch(data_frame_type):
 
 
 def test_series_argument_type_mismatch(series_type):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(SeriesArgument('arg', series_type))
     def test_function(arg: str) -> str:
@@ -152,6 +165,7 @@ def test_series_argument_type_mismatch(series_type):
 
 
 def test_return_value_type_mismatch(data_frame_type):
+    assert config.enable_type_checks is True
 
     return_value = 0
 
@@ -167,6 +181,8 @@ def test_return_value_type_mismatch(data_frame_type):
 
 
 def test_unknown_argument(data_frame_type):
+    assert config.enable_type_checks is True
+
     # Decorated function has no arguments
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function1() -> str:
@@ -187,6 +203,7 @@ def test_unknown_argument(data_frame_type):
 
 
 def test_unsupported_decorator_argument():
+    assert config.enable_type_checks is True
 
     @pandas_type_check("Unsupported String Argument")
     def test_function() -> int:
@@ -201,6 +218,7 @@ def test_unsupported_decorator_argument():
 
 
 def test_multiple_return_value_decorator_arguments(series, series_type, data_frame_type):
+    assert config.enable_type_checks is True
 
     @pandas_type_check(SeriesReturnValue(series_type), DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.Series:
@@ -209,3 +227,19 @@ def test_multiple_return_value_decorator_arguments(series, series_type, data_fra
     with pytest.raises(PandasTypeCheckDecoratorException,
                        match="Only one return value type marker allowed in type check decorator."):
         test_function()
+
+
+def test_disable_type_checks_through_config(data_frame_type, wrong_data_frame):
+    assert config.enable_type_checks is True
+
+    @pandas_type_check(DataFrameArgument('arg', data_frame_type))
+    def test_function(arg: pd.DataFrame) -> pd.DataFrame:
+        return arg
+
+    # Disable type checks in global configuration
+    config.enable_type_checks = False
+    assert config.enable_type_checks is False
+
+    # No type error should be raised when applying the function to a data frame with the wrong structure
+    result = test_function(wrong_data_frame)
+    pd.testing.assert_frame_equal(result, wrong_data_frame)

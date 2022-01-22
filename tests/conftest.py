@@ -4,6 +4,17 @@ import pytest
 import pandas as pd
 import numpy as np
 
+from pandas_type_checks.core import config as pandas_type_checks_config
+
+
+@pytest.fixture(autouse=True)
+def before_all():
+    # Make sure type checking of Pandas data frames and series
+    # is enabled in the global configuration for each test
+    pandas_type_checks_config.enable_type_checks = True
+
+    yield  # run test function
+
 
 @pytest.fixture(scope='session')
 def data_frame_type() -> Dict[str, Any]:
