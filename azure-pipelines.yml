@@ -67,18 +67,5 @@ jobs:
         inputs:
           artifact: junit_3.10
           path: '$(Build.SourcesDirectory)/junit'
-      - bash: |
-          echo "pwd"
-          pwd
-          echo "ls"
-          ls
-          echo "ls -lisa junit"
-          ls -lisa junit
-          echo "ls -lisa junit/coverage-reports"
-          ls -lisa junit/coverage-reports
-          echo "ls -lisa junit/test_results.xml"
-          ls -lisa junit/test_results.xml
-          echo "ls -lisa junit/coverage-reports/coverage.xml"
-          ls -lisa junit/coverage-reports/coverage.xml
       # Run SonarCloud analysis
       - task: SonarCloudAnalyze@1
