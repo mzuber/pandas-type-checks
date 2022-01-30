@@ -7,40 +7,72 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
-strategy:
-  matrix:
-    Python36:
-      python.version: '3.6'
-    Python37:
-      python.version: '3.7'
-    Python38:
-      python.version: '3.8'
-    Python39:
-      python.version: '3.9'
-    Python310:
-      python.version: '3.10'
-
-steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-    displayName: 'Use Python $(python.version)'
-  # Run tox
-  - script: |
-      python -m pip install --upgrade pip
-      pip install tox
-    displayName: 'Install dependencies'
-  - script: 'tox -e py'
-    displayName: Run Tox
-  # Publish test results and code coverage report
-  - task: PublishTestResults@2
-    displayName: Publish test results
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: '$(Build.SourcesDirectory)/junit/test_results.xml'
-  - task: PublishCodeCoverageResults@1
-    displayName: Publish code coverage results
-    inputs:
-      codeCoverageTool: 'cobertura'
-      summaryFileLocation: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
-      pathToSources: '$(Build.SourcesDirectory)/src/'
+jobs:
+  - job: Build
+    strategy:
+      matrix:
+        Python36:
+          python.version: '3.6'
+        Python37:
+          python.version: '3.7'
+        Python38:
+          python.version: '3.8'
+        Python39:
+          python.version: '3.9'
+        Python310:
+          python.version: '3.10'
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+        displayName: 'Use Python $(python.version)'
+      # Run tox
+      - script: |
+          python -m pip install --upgrade pip
+          pip install tox
+        displayName: 'Install dependencies'
+      - script: 'tox -e py'
+        displayName: Run Tox
+      # Publish test results and code coverage report
+      - task: PublishTestResults@2
+        displayName: Publish test results
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(Build.SourcesDirectory)/junit/test_results.xml'
+      - task: PublishCodeCoverageResults@1
+        displayName: Publish code coverage results
+        inputs:
+          codeCoverageTool: 'cobertura'
+          summaryFileLocation: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
+          pathToSources: '$(Build.SourcesDirectory)/src/'
+      # Publish test results and code coverage report artifacts for later use in Sonar scan
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)/junit/test_results.xml'
+          artifactName: test_results
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
+          artifactName: cobertura_coverage_report
+  - job: SonarScan
+    displayName: SonarCloud Analysis
+    dependsOn: Build
+    steps:
+      # Setup SonarCloud analysis
+      - task: SonarCloudPrepare@1
+        inputs:
+          SonarCloud: 'SonarCloud'
+          scannerMode: 'CLI'
+          configMode: 'file'
+          configFile: 'sonar-project.properties'
+      # Download test results and code coverage report artifacts created in build job
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: test_results
+          path: '$(Build.SourcesDirectory)/junit/test_results.xml'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: cobertura_coverage_report
+          path: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
+      # Run SonarCloud analysis
+      - task: SonarCloudAnalyze@1
