@@ -80,5 +80,7 @@ jobs:
           ls
           echo "junit dir"
           ls junit
+          echo "coverage dir"
+          ls junit/coverage-reports
       # Run SonarCloud analysis
       - task: SonarCloudAnalyze@1
