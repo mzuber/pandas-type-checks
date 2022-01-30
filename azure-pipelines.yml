@@ -49,11 +49,11 @@ jobs:
       - task: PublishPipelineArtifact@1
         inputs:
           targetPath: '$(Build.SourcesDirectory)/junit/test_results.xml'
-          artifactName: test_results
+          artifactName: 'test_results_$(python.version)'
       - task: PublishPipelineArtifact@1
         inputs:
           targetPath: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
-          artifactName: cobertura_coverage_report
+          artifactName: 'cobertura_coverage_report_$(python.version)'
   - job: SonarScan
     displayName: SonarCloud Analysis
     dependsOn: Build
@@ -68,11 +68,11 @@ jobs:
       # Download test results and code coverage report artifacts created in build job
       - task: DownloadPipelineArtifact@2
         inputs:
-          artifact: test_results
+          artifact: test_results_3.10
           path: '$(Build.SourcesDirectory)/junit/test_results.xml'
       - task: DownloadPipelineArtifact@2
         inputs:
-          artifact: cobertura_coverage_report
+          artifact: cobertura_coverage_report_3.10
           path: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
       # Run SonarCloud analysis
       - task: SonarCloudAnalyze@1
