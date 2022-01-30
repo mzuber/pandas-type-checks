@@ -48,12 +48,8 @@ jobs:
       # Publish test results and code coverage report artifacts for later use in Sonar scan
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: '$(Build.SourcesDirectory)/junit/test_results.xml'
-          artifactName: 'test_results_$(python.version)'
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
-          artifactName: 'cobertura_coverage_report_$(python.version)'
+          targetPath: '$(Build.SourcesDirectory)/junit/'
+          artifactName: 'junit_$(python.version)'
   - job: SonarScan
     displayName: SonarCloud Analysis
     dependsOn: Build
@@ -69,21 +65,20 @@ jobs:
       # Download test results and code coverage report artifacts created in build job
       - task: DownloadPipelineArtifact@2
         inputs:
-          artifact: test_results_3.10
-          path: '$(Build.SourcesDirectory)/junit/test_results.xml'
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: cobertura_coverage_report_3.10
-          path: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
+          artifact: junit_3.10
+          path: '$(Build.SourcesDirectory)/junit'
       - bash: |
-          echo "WORKSPACE:"
+          echo "pwd"
+          pwd
+          echo "ls"
           ls
-          echo "JUNIT:"
-          ls junit
-          echo "COVERAGE REPORTS"
-          ls junit/coverage-reports
-          echo "XMLs"
+          echo "ls -lisa junit"
+          ls -lisa junit
+          echo "ls -lisa junit/coverage-reports"
+          ls -lisa junit/coverage-reports
+          echo "ls -lisa junit/test_results.xml"
           ls -lisa junit/test_results.xml
+          echo "ls -lisa junit/coverage-reports/coverage.xml"
           ls -lisa junit/coverage-reports/coverage.xml
       # Run SonarCloud analysis
       - task: SonarCloudAnalyze@1
