@@ -62,6 +62,7 @@ jobs:
       - task: SonarCloudPrepare@1
         inputs:
           SonarCloud: 'SonarCloud'
+          organization: 'mzuber'
           scannerMode: 'CLI'
           configMode: 'file'
           configFile: 'sonar-project.properties'
