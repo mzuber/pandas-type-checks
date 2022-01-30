@@ -33,7 +33,7 @@ setup(
     classifiers=[
         # complete classifier list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developer'
+        'Intended Audience :: Developer',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
