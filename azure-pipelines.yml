@@ -75,5 +75,10 @@ jobs:
         inputs:
           artifact: cobertura_coverage_report_3.10
           path: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
+      - bash: |
+          echo "Workspace"
+          ls
+          echo "junit dir"
+          ls junit
       # Run SonarCloud analysis
       - task: SonarCloudAnalyze@1
