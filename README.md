@@ -76,3 +76,10 @@ Type error in return value:
     Expected type 'int64' for column B' but found type 'int32'
     Missing column in DataFrame: 'C'
 ```
+
+References
+----------
+
+* [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
+* [Python Packaging User Guide](https://packaging.python.org/en/latest/)
+
