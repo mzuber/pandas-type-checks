@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pandas-type-checks"
+description = "Structural type checking for Pandas data frames."
+readme = "README.md"
+authors = [{ name = "Martin Zuber", email = "martin.zuber@sap.com" }]
+license = { text = "BSD 3-Clause License" }
+keywords = ["Pandas", "type check"]
+classifiers = [
+    # complete classifier list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: BSD License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Software Development :: Libraries',
+    'Typing :: Typed'
+]
+
+requires-python=">=3.6"
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+"Source Code" = "https://github.com/mzuber/pandas-type-checks"
+
+[tool.setuptools]
+platforms = ["any"]
+
+[tool.setuptools.dynamic]
+version = {file = "version.txt"}
+dependencies = {file = "requirements.txt"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
