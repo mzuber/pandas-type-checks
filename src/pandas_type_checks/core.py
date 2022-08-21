@@ -1,9 +1,13 @@
 from typing import Dict, Any, Union, Optional, List, Type
+import logging
 
 import pandas as pd
 import numpy as np
 
 from pandas.core.dtypes.base import ExtensionDtype
+
+
+default_logger = logging.getLogger('pandas_type_checks')
 
 
 class PandasTypeCheckConfiguration(object):
@@ -18,12 +22,19 @@ class PandasTypeCheckConfiguration(object):
             If strict type checking is enabled data frames cannot contain columns which are not part of the type
             specification against which they are checked. Non-strict type checking in that sense allows a form of
             structural subtyping for data frames.
+        log_type_errors (bool): Flag indicating that type errors for Pandas dataframes or series values should be
+            logged instead of raising a 'TypeError' exception.
+        logger (logging.Logger): Logger to be used for logging type errors when 'log_type_errors' flag is enabled.
     """
 
     def __init__(self, enable_type_checks: bool = True,
-                 strict_type_checks: bool = False):
+                 strict_type_checks: bool = False,
+                 log_type_errors: bool = False,
+                 logger: logging.Logger = default_logger):
         self.enable_type_checks = enable_type_checks
         self.strict_type_checks = strict_type_checks
+        self.log_type_errors = log_type_errors
+        self.logger = logger
 
 
 config = PandasTypeCheckConfiguration()

@@ -40,6 +40,7 @@ def pandas_type_check(*args, **kwargs):
         def pandas_type_check_wrapper(*func_args, **func_kwargs):
             # Get argument specification of wrapped function
             func_spec = inspect.getfullargspec(func)
+            func_name = func.__name__
 
             # Evaluate query args of the decorator
             strict: bool = kwargs.get('strict', pandas_type_checks_config.strict_type_checks)
@@ -64,12 +65,12 @@ def pandas_type_check(*args, **kwargs):
                     else:
                         raise PandasTypeCheckDecoratorException(
                             f"Argument type mismatch. Expected argument '{decorator_arg.name}' of decorated function "
-                            f"'{func.__name__}' to be of type '{decorator_arg.corresponding_pandas_type.__qualname__}' "
+                            f"'{func_name}' to be of type '{decorator_arg.corresponding_pandas_type.__qualname__}' "
                             f"but found value of type '{type(func_arg).__qualname__}'."
                         )
                 else:
                     raise PandasTypeCheckDecoratorException(
-                        f"Decorated function '{func.__name__}' has no parameter '{decorator_arg.name}'."
+                        f"Decorated function '{func_name}' has no parameter '{decorator_arg.name}'."
                     )
 
             # Perform type checks for Pandas arguments defined in decorator
@@ -113,15 +114,19 @@ def pandas_type_check(*args, **kwargs):
                     else:
                         raise PandasTypeCheckDecoratorException(
                             f"Return value type mismatch. "
-                            f"Expected return value of decorated function '{func.__name__}' to be of type "
+                            f"Expected return value of decorated function '{func_name}' to be of type "
                             f"'{ret_value_type_marker.corresponding_pandas_type.__qualname__}' but found "
                             f"value of type '{type(ret_value).__qualname__}'."
                         )
 
                 # Raise type error if any type check errors were found for any of the Pandas arguments or return value
                 if arg_type_check_errors or ret_value_type_check_errors:
-                    error_msg = build_exception_message(arg_type_check_errors, ret_value_type_check_errors)
-                    raise TypeError(error_msg)
+                    error_msg = build_exception_message(func_name, arg_type_check_errors, ret_value_type_check_errors)
+                    # Log type errors for Pandas values if the corresponding configuration flag is set
+                    if pandas_type_checks_config.log_type_errors:
+                        pandas_type_checks_config.logger.error(error_msg)
+                    else:
+                        raise TypeError(error_msg)
 
             return ret_value
 

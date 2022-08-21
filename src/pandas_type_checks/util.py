@@ -3,12 +3,14 @@ from typing import List, Dict
 from pandas_type_checks.core import PandasTypeCheckError
 
 
-def build_exception_message(arg_type_check_errors: Dict[str, List[PandasTypeCheckError]],
+def build_exception_message(func_name: str,
+                            arg_type_check_errors: Dict[str, List[PandasTypeCheckError]],
                             ret_value_type_check_errors: List[PandasTypeCheckError]) -> str:
     """
     Build a formatted error message for all the given type check errors.
 
     Args:
+        func_name: Name of the function in which the typer errors occurred
         arg_type_check_errors: Dictionary containing the type check errors found for all
           arguments of an annotated function
         ret_value_type_check_errors: list containing the type check errors found for the
@@ -17,7 +19,7 @@ def build_exception_message(arg_type_check_errors: Dict[str, List[PandasTypeChec
     Returns:
         A formatted string with the full error message containing all given type check errors
     """
-    exec_msg: List[str] = ["Pandas type error"]
+    exec_msg: List[str] = [f"Pandas type error in function '{func_name}'"]
 
     # Add argument type check errors to exception message
     for arg_name, type_check_errors in arg_type_check_errors.items():
