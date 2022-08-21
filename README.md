@@ -49,7 +49,7 @@ filter_rows_and_remove_column(test_data, test_filter_values_with_wrong_type)
 ```
 
 ```
-TypeError: Pandas type error
+TypeError: Pandas type error in function 'filter_rows_and_remove_column'
 Type error in argument 'filter_values':
 	Expected Series of type 'int64' but found type 'int32'
 ```
@@ -68,7 +68,7 @@ filter_rows_and_remove_column(test_data_with_wrong_type_and_missing_column, test
 ```
 
 ```
-TypeError: Pandas type error
+TypeError: Pandas type error in function 'filter_rows_and_remove_column'
 Type error in argument 'data':
     Expected type 'int64' for column B' but found type 'int32'
     Missing column in DataFrame: 'C'

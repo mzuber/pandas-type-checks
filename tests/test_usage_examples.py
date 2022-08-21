@@ -10,6 +10,8 @@ from pandas_type_checks.decorator import pandas_type_check
 def test_usage_example():
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(
         DataFrameArgument('data', {
@@ -42,9 +44,9 @@ def test_usage_example():
     test_filter_values_with_wrong_type = pd.Series([3, 4], dtype='int32')
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in argument 'filter_values':\n"
-                             "\tExpected Series of type 'int64' but found type 'int32'"):
+                       match=f"Pandas type error in function '{filter_rows_and_remove_column.__name__}'\n"
+                             f"Type error in argument 'filter_values':\n"
+                             f"\tExpected Series of type 'int64' but found type 'int32'"):
         filter_rows_and_remove_column(test_data, test_filter_values_with_wrong_type)
 
     # Apply function to data frame with wrong type and missing column
@@ -54,11 +56,11 @@ def test_usage_example():
     })
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in argument 'data':\n"
-                             "\tExpected type 'int64' for column B' but found type 'int32'\n"
-                             "\tMissing column in DataFrame: 'C'\n"
-                             "Type error in return value:\n"
-                             "\tExpected type 'int64' for column B' but found type 'int32'\n"
-                             "\tMissing column in DataFrame: 'C'"):
+                       match=f"Pandas type error in function '{filter_rows_and_remove_column.__name__}'\n"
+                             f"Type error in argument 'data':\n"
+                             f"\tExpected type 'int64' for column B' but found type 'int32'\n"
+                             f"\tMissing column in DataFrame: 'C'\n"
+                             f"Type error in return value:\n"
+                             f"\tExpected type 'int64' for column B' but found type 'int32'\n"
+                             f"\tMissing column in DataFrame: 'C'"):
         filter_rows_and_remove_column(test_data_with_wrong_type_and_missing_column, test_filter_values)

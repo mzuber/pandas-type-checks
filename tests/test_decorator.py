@@ -9,6 +9,8 @@ from pandas_type_checks.decorator import pandas_type_check, PandasTypeCheckDecor
 def test_data_frame_argument(data_frame, data_frame_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
@@ -21,6 +23,8 @@ def test_data_frame_argument(data_frame, data_frame_type):
 def test_data_frame_return_value(data_frame, data_frame_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.DataFrame:
@@ -33,6 +37,8 @@ def test_data_frame_return_value(data_frame, data_frame_type):
 def test_series_argument(series, series_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(SeriesArgument('arg', series_type))
     def test_function(arg: pd.Series) -> pd.Series:
@@ -45,6 +51,8 @@ def test_series_argument(series, series_type):
 def test_series_return_value(series, series_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(SeriesReturnValue(series_type))
     def test_function() -> pd.Series:
@@ -57,53 +65,61 @@ def test_series_return_value(series, series_type):
 def test_type_error_for_data_frame_argument(data_frame_type, wrong_data_frame):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
         return arg
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in argument 'arg':\n"
-                             "\tExpected type 'float64' for column A' but found type 'int64'\n"
-                             "\tMissing column in DataFrame: 'B'"):
+                       match=f"Pandas type error in function '{test_function.__name__}'\n"
+                             f"Type error in argument 'arg':\n"
+                             f"\tExpected type 'float64' for column A' but found type 'int64'\n"
+                             f"\tMissing column in DataFrame: 'B'"):
         test_function(wrong_data_frame)
 
 
 def test_type_error_for_data_frame_return_value(data_frame_type, wrong_data_frame):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.DataFrame:
         return wrong_data_frame
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in return value:\n"
-                             "\tExpected type 'float64' for column A' but found type 'int64'\n"
-                             "\tMissing column in DataFrame: 'B'"):
+                       match=f"Pandas type error in function '{test_function.__name__}'\n"
+                             f"Type error in return value:\n"
+                             f"\tExpected type 'float64' for column A' but found type 'int64'\n"
+                             f"\tMissing column in DataFrame: 'B'"):
         test_function()
 
 
 def test_strict_type_check_for_data_frame_argument(data_frame_type, extended_data_frame):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type), strict=True)
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
         return arg
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in argument 'arg':\n"
-                             "\tFound unspecified column in data frame: 'D'"):
+                       match=f"Pandas type error in function '{test_function.__name__}'\n"
+                             f"Type error in argument 'arg':\n"
+                             f"\tFound unspecified column in data frame: 'D'"):
         test_function(extended_data_frame)
 
 
 def test_strict_type_check_for_data_frame_return_value(data_frame_type, extended_data_frame):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     # Enable strict type check mode through keyword argument
     @pandas_type_check(DataFrameReturnValue(data_frame_type), strict=True)
@@ -111,45 +127,51 @@ def test_strict_type_check_for_data_frame_return_value(data_frame_type, extended
         return extended_data_frame
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in return value:\n"
-                             "\tFound unspecified column in data frame: 'D'"):
+                       match=f"Pandas type error in function '{test_function.__name__}'\n"
+                             f"Type error in return value:\n"
+                             f"\tFound unspecified column in data frame: 'D'"):
         test_function()
 
 
 def test_type_error_for_series_argument(series_type, wrong_series):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(SeriesArgument('arg', series_type))
     def test_function(arg: pd.Series) -> pd.Series:
         return arg
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in argument 'arg':\n"
-                             "\tExpected Series of type 'int64' but found type 'float64'"):
+                       match=f"Pandas type error in function '{test_function.__name__}'\n"
+                             f"Type error in argument 'arg':\n"
+                             f"\tExpected Series of type 'int64' but found type 'float64'"):
         test_function(wrong_series)
 
 
 def test_type_error_for_series_return_value(series_type, wrong_series):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(SeriesReturnValue(series_type))
     def test_function() -> pd.Series:
         return wrong_series
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in return value:\n"
-                             "\tExpected Series of type 'int64' but found type 'float64'"):
+                       match=f"Pandas type error in function '{test_function.__name__}'\n"
+                             f"Type error in return value:\n"
+                             f"\tExpected Series of type 'int64' but found type 'float64'"):
         test_function()
 
 
 def test_data_frame_argument_type_mismatch(data_frame_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: str) -> str:
@@ -165,6 +187,8 @@ def test_data_frame_argument_type_mismatch(data_frame_type):
 def test_series_argument_type_mismatch(series_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(SeriesArgument('arg', series_type))
     def test_function(arg: str) -> str:
@@ -180,6 +204,8 @@ def test_series_argument_type_mismatch(series_type):
 def test_return_value_type_mismatch(data_frame_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     return_value = 0
 
@@ -197,6 +223,8 @@ def test_return_value_type_mismatch(data_frame_type):
 def test_unknown_argument(data_frame_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     # Decorated function has no arguments
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
@@ -220,6 +248,8 @@ def test_unknown_argument(data_frame_type):
 def test_unsupported_decorator_argument():
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check("Unsupported String Argument")
     def test_function() -> int:
@@ -236,6 +266,8 @@ def test_unsupported_decorator_argument():
 def test_multiple_return_value_decorator_arguments(series, series_type, data_frame_type):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(SeriesReturnValue(series_type), DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.Series:
@@ -249,6 +281,8 @@ def test_multiple_return_value_decorator_arguments(series, series_type, data_fra
 def test_disable_type_checks_through_config(data_frame_type, wrong_data_frame):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameArgument('arg', data_frame_type))
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
@@ -266,6 +300,8 @@ def test_disable_type_checks_through_config(data_frame_type, wrong_data_frame):
 def test_strict_type_check_mode_through_config(data_frame_type, extended_data_frame):
     assert config.enable_type_checks is True
     assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
 
     @pandas_type_check(DataFrameReturnValue(data_frame_type))
     def test_function() -> pd.DataFrame:
@@ -275,7 +311,35 @@ def test_strict_type_check_mode_through_config(data_frame_type, extended_data_fr
     assert config.strict_type_checks is True
 
     with pytest.raises(TypeError,
-                       match="Pandas type error\n"
-                             "Type error in return value:\n"
-                             "\tFound unspecified column in data frame: 'D'"):
+                       match=f"Pandas type error in function '{test_function.__name__}'\n"
+                             f"Type error in return value:\n"
+                             f"\tFound unspecified column in data frame: 'D'"):
         test_function()
+
+
+def test_log_type_errors_through_config(data_frame_type, wrong_data_frame, caplog):
+    assert config.enable_type_checks is True
+    assert config.strict_type_checks is False
+    assert config.log_type_errors is False
+    assert config.logger is not None
+
+    @pandas_type_check(DataFrameArgument('arg', data_frame_type))
+    def test_function(arg: pd.DataFrame) -> pd.DataFrame:
+        return arg
+
+    # Disable type checks in global configuration
+    config.log_type_errors = True
+    assert config.log_type_errors is True
+
+    # No type error should be raised when applying the function to a data frame with the wrong structure
+    result = test_function(wrong_data_frame)
+    pd.testing.assert_frame_equal(result, wrong_data_frame)
+
+    # Instead the type error should be logged
+    assert caplog.records
+    log_record = caplog.records[-1]
+    assert log_record.levelname == 'ERROR'
+    assert log_record.message == (f"Pandas type error in function '{test_function.__name__}'\n"
+                                  f"Type error in argument 'arg':\n"
+                                  f"\tExpected type 'float64' for column A' but found type 'int64'\n"
+                                  f"\tMissing column in DataFrame: 'B'")

@@ -16,6 +16,9 @@ def before_all():
     # Use non-strict type checking mode as default for each test
     pandas_type_checks_config.strict_type_checks = False
 
+    # Raise exceptions for type errors as default for each test
+    pandas_type_checks_config.log_type_errors = False
+
     yield  # run test function
 
 
