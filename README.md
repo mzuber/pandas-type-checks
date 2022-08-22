@@ -5,8 +5,8 @@ Pandas Type Checks
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mzuber_pandas-type-checks&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mzuber_pandas-type-checks)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mzuber_pandas-type-checks&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mzuber_pandas-type-checks)
 
-A Python library for structural type checking of Pandas data frames and series:
-- A decorator `pandas_type_check` providing means to specify and check the structure of Pandas `DataFrame` and `Series`
+A Python library providing means for structural type checking of Pandas data frames and series:
+- A decorator `pandas_type_check` for specifying and checking the structure of Pandas `DataFrame` and `Series`
   arguments and return values of a function.
 - Support for "non-strict" type checking. In this mode data frames can contain columns which are not part of the type
   specification against which they are checked. Non-strict type checking in that sense allows a form of structural
