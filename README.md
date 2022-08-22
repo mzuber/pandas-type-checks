@@ -5,7 +5,30 @@ Pandas Type Checks
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mzuber_pandas-type-checks&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mzuber_pandas-type-checks)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mzuber_pandas-type-checks&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mzuber_pandas-type-checks)
 
-Structural type checking for Pandas data frames and series.
+A Python library for structural type checking of Pandas data frames and series:
+- A decorator `pandas_type_check` providing means to specify and check the structure of Pandas `DataFrame` and `Series`
+  arguments and return values of a function.
+- Support for "non-strict" type checking. In this mode data frames can contain columns which are not part of the type
+  specification against which they are checked. Non-strict type checking in that sense allows a form of structural
+  subtyping for data frames.
+- Configuration options to raise exceptions for type errors or alternatively log them.
+- Configuration option to globally enable/disable the type checks. This allows users to enable the type checking
+  functionality in e.g. only testing environments.
+
+This library focuses on providing utilities to check the structure (i.e. columns and their types) of Pandas data frames
+and series arguments and return values of functions. For checking individual data frame and series values, including
+formulating more sophisticated constraints on column values, [Pandera](https://github.com/unionai-oss/pandera) is a
+great alternative.
+
+Installation
+------------
+
+Packages for all released versions are available at the
+[Python Package Index (PyPI)](https://pypi.org/project/pandas-type-checks) and can be installed with `pip`:
+
+```
+pip install pandas-type-checks
+```
 
 Usage Example
 -------------
@@ -76,6 +99,26 @@ Type error in return value:
     Expected type 'int64' for column B' but found type 'int32'
     Missing column in DataFrame: 'C'
 ```
+
+Configuration
+-------------
+
+The global configuration object `pandas_type_checks.config` can be used to configure the behavior of the library:
+- `config.enable_type_checks` (`bool`): Flag for enabling/disabling type checks for specified arguments and return
+  values. This flag can be used to globally enable or disable the type checker in certain environments.
+
+  Default: `True`
+- `config.strict_type_checks` (`bool`): Flag for strict type check mode. If strict type checking is enabled data frames
+  cannot contain columns which are not part of the type specification against which they are checked. Non-strict type
+  checking in that sense allows a form of structural subtyping for data frames.
+
+  Default: `False`
+- `config.log_type_errors` (`bool`): Flag indicating that type errors for Pandas dataframes or series values should be
+  logged instead of raising a `TypeError` exception. Type errors will be logged with log level `ERROR`.
+
+  Default: `False`
+- `config.logger` (`logging.Logger`): Logger to be used for logging type errors when the `log_type_errors` flag is enabled.
+  When no logger is specified via the configuration a built-in default logger is used.
 
 References
 ----------

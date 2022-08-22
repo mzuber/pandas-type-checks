@@ -16,14 +16,14 @@ class PandasTypeCheckConfiguration(object):
 
     Attributes:
         enable_type_checks (bool): Flag for enabling/disabling type checks for specified arguments and return
-            values Defaults to True. This flag can be used to globally enable or disable the type checker in
+            values. Defaults to True. This flag can be used to globally enable or disable the type checker in
             certain environments.
         strict_type_checks (bool): Flag for strict type check mode. Defaults to False.
             If strict type checking is enabled data frames cannot contain columns which are not part of the type
             specification against which they are checked. Non-strict type checking in that sense allows a form of
             structural subtyping for data frames.
         log_type_errors (bool): Flag indicating that type errors for Pandas dataframes or series values should be
-            logged instead of raising a 'TypeError' exception.
+            logged instead of raising a 'TypeError' exception. Defaults to False.
         logger (logging.Logger): Logger to be used for logging type errors when 'log_type_errors' flag is enabled.
     """
 
