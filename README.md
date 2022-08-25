@@ -4,6 +4,8 @@ Pandas Type Checks
 [![Build Status](https://dev.azure.com/martin-zuber/pandas-type-checks/_apis/build/status/mzuber.pandas-type-checks?branchName=main)](https://dev.azure.com/martin-zuber/pandas-type-checks/_build/latest?definitionId=1&branchName=main)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mzuber_pandas-type-checks&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mzuber_pandas-type-checks)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mzuber_pandas-type-checks&metric=coverage)](https://sonarcloud.io/summary/new_code?id=mzuber_pandas-type-checks)
+[![PyPI Version](https://img.shields.io/pypi/v/pandas-type-checks)](https://pypi.org/project/pandas-type-checks/)
+[![PyPI Wheel](https://img.shields.io/pypi/wheel/pandas-type-checks)](https://pypi.org/project/pandas-type-checks/)
 
 A Python library providing means for structural type checking of Pandas data frames and series:
 - A decorator `pandas_type_check` for specifying and checking the structure of Pandas `DataFrame` and `Series`
