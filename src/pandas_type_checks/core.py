@@ -4,6 +4,13 @@ import logging
 import pandas as pd
 import numpy as np
 
+# Import optional Pandera dependency
+try:
+    import pandera as pa
+    pandera_support = True
+except ImportError:
+    pandera_support = False
+
 from pandas.core.dtypes.base import ExtensionDtype
 
 
@@ -116,6 +123,11 @@ class SeriesArgument(SeriesReturnValue):
         self.name = name
 
 
+DataFrameType = Dict[str, Any]
+if pandera_support:
+    DataFrameType = Union[Dict[str, Any], pa.DataFrameSchema]
+
+
 class DataFrameReturnValue(object):
     """
     Expected data type for a Pandas DataFrame return value of a function or method.
@@ -128,9 +140,11 @@ class DataFrameReturnValue(object):
             Use a single numpy.dtype or Python type to mark that all columns in the DataFrame have the same type.
             Alternatively, use {col: dtype, ...}, where 'col' is a column label and 'dtype' is a numpy.dtype or
             Python type to mark that one or more of the DataFrame's columns have the given column-specific types.
+
+            TODO: Pandera DataFrameSchema
     """
 
-    def __init__(self, dtype: Dict[str, Any]):
+    def __init__(self, dtype: DataFrameType):
         self.dtype = dtype
 
     @property
@@ -152,8 +166,7 @@ class DataFrameReturnValue(object):
             If and only if no type errors are found, this method returns an empty list.
         """
         type_check_errors: List[PandasTypeCheckError] = []
-        reference_columns = list(self.dtype.keys())
-        reference_data_frame = pd.DataFrame(columns=reference_columns).astype(self.dtype)
+        reference_columns = list(self.dtype.keys())  # TODO: Does this work with Pandera DataFrameSchema?
 
         if strict:
             unspecified_columns = set(data_frame.columns).difference(reference_columns)
@@ -166,6 +179,15 @@ class DataFrameReturnValue(object):
                 ]
                 type_check_errors.extend(unspecified_column_errors)
 
+        # Validate Pandera data frame schema if used as expected data frame type
+        if pandera_support and isinstance(self.dtype, pa.DataFrameSchema):
+            self.dtype.validate(data_frame)
+            # TODO: Catch exception and transform it into type check error
+
+            return type_check_errors
+
+        # Compare types of each column otherwise
+        reference_data_frame = pd.DataFrame(columns=reference_columns).astype(self.dtype)
         for column_name in reference_columns:
             expected_column_type = reference_data_frame[column_name].dtype
 
