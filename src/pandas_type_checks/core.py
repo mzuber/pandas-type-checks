@@ -1,4 +1,4 @@
-from typing import Dict, Any, Union, Optional, List, Type
+from typing import Dict, Any, Union, List, Type
 import logging
 
 import pandas as pd
@@ -12,6 +12,8 @@ except ImportError:
     pandera_support = False
 
 from pandas.core.dtypes.base import ExtensionDtype
+
+from pandas_type_checks.errors import PandasTypeCheckError, pandera_schema_errors_to_type_check_errors
 
 
 default_logger = logging.getLogger('pandas_type_checks')
@@ -45,28 +47,6 @@ class PandasTypeCheckConfiguration(object):
 
 
 config = PandasTypeCheckConfiguration()
-
-
-class PandasTypeCheckError(object):
-    """
-    Error-related information when type checking a Pandas data frame or series.
-
-    Attributes:
-        error_msg: Error message
-        expected_type: (Optional) Expected type for the data frame column or series
-        given_type: (Optional) Actual type of the data frame column or series
-        column_name: (Optional) Data frame column name, set if error occurred
-                     when type checking a column of a data frame
-    """
-
-    def __init__(self, error_msg: str,
-                 expected_type: Optional[Any] = None,
-                 given_type: Optional[Any] = None,
-                 column_name: Optional[str] = None):
-        self.error_msg = error_msg
-        self.expected_type = expected_type
-        self.given_type = given_type
-        self.column_name = column_name
 
 
 class SeriesReturnValue(object):
@@ -141,7 +121,9 @@ class DataFrameReturnValue(object):
             Alternatively, use {col: dtype, ...}, where 'col' is a column label and 'dtype' is a numpy.dtype or
             Python type to mark that one or more of the DataFrame's columns have the given column-specific types.
 
-            TODO: Pandera DataFrameSchema
+            If the library has been installed with Pandera support this attribute can also hold a Pandera
+            ``DataFrameSchema`` or ``SeriesSchema``. Pandera schemas will be validated lazily to capture all
+            validation errors.
     """
 
     def __init__(self, dtype: DataFrameType):
@@ -166,7 +148,11 @@ class DataFrameReturnValue(object):
             If and only if no type errors are found, this method returns an empty list.
         """
         type_check_errors: List[PandasTypeCheckError] = []
-        reference_columns = list(self.dtype.keys())  # TODO: Does this work with Pandera DataFrameSchema?
+
+        if pandera_support and isinstance(self.dtype, pa.DataFrameSchema):
+            reference_columns = list(self.dtype.dtypes.keys())
+        else:
+            reference_columns = list(self.dtype.keys())
 
         if strict:
             unspecified_columns = set(data_frame.columns).difference(reference_columns)
@@ -181,8 +167,12 @@ class DataFrameReturnValue(object):
 
         # Validate Pandera data frame schema if used as expected data frame type
         if pandera_support and isinstance(self.dtype, pa.DataFrameSchema):
-            self.dtype.validate(data_frame)
-            # TODO: Catch exception and transform it into type check error
+            try:
+                self.dtype.validate(data_frame, lazy=True)
+            except pa.errors.SchemaErrors as err:
+                # Catch Pandera validation exception and transform it into type check errors
+                pandera_validation_errors = pandera_schema_errors_to_type_check_errors(err)
+                type_check_errors.extend(pandera_validation_errors)
 
             return type_check_errors
 
@@ -224,8 +214,12 @@ class DataFrameArgument(DataFrameReturnValue):
             Use a single numpy.dtype or Python type to mark that all columns in the DataFrame have the same type.
             Alternatively, use {col: dtype, ...}, where 'col' is a column label and 'dtype' is a numpy.dtype or
             Python type to mark that one or more of the DataFrame's columns have the given column-specific types.
+
+            If the library has been installed with Pandera support this attribute can also hold a Pandera
+            ``DataFrameSchema`` or ``SeriesSchema``. Pandera schemas will be validated lazily to capture all
+            validation errors.
     """
 
-    def __init__(self, name: str, dtype: Dict[str, Any]):
+    def __init__(self, name: str, dtype: DataFrameType):
         super().__init__(dtype)
         self.name = name
