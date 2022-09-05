@@ -51,9 +51,9 @@ class PandasTypeCheckConfiguration(object):
 config = PandasTypeCheckConfiguration()
 
 
-SeriesType = Union[str, np.dtype, ExtensionDtype]
+SeriesType = Union[str, np.dtype, ExtensionDtype]  # type: ignore
 if pandera_support:
-    SeriesType = Union[str, np.dtype, ExtensionDtype, pa.SeriesSchema]
+    SeriesType = Union[str, np.dtype, ExtensionDtype, pa.SeriesSchema]  # type: ignore
 
 
 class SeriesReturnValue(object):
@@ -127,9 +127,9 @@ class SeriesArgument(SeriesReturnValue):
         self.name = name
 
 
-DataFrameType = Dict[str, Any]
+DataFrameType = Dict[str, Any]  # type: ignore
 if pandera_support:
-    DataFrameType = Union[Dict[str, Any], pa.DataFrameSchema]
+    DataFrameType = Union[Dict[str, Any], pa.DataFrameSchema]  # type: ignore
 
 
 class DataFrameReturnValue(object):
