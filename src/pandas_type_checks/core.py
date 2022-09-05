@@ -51,15 +51,24 @@ class PandasTypeCheckConfiguration(object):
 config = PandasTypeCheckConfiguration()
 
 
+SeriesType = Union[str, np.dtype, ExtensionDtype]
+if pandera_support:
+    SeriesType = Union[str, np.dtype, ExtensionDtype, pa.SeriesSchema]
+
+
 class SeriesReturnValue(object):
     """
     The expected data type for a Pandas Series return value of a function or method.
 
     Attributes:
-        dtype: Expected data type for the Series.
+        dtype:
+            Expected data type for the Series.
+
+            If the library has been installed with Pandera support this attribute can also hold a Pandera
+            ``SeriesSchema``. Pandera schemas will be validated lazily to capture all validation errors.
     """
 
-    def __init__(self, dtype: Union[str, np.dtype, ExtensionDtype]):
+    def __init__(self, dtype: SeriesType):
         self.dtype = dtype
 
     @property
@@ -81,7 +90,16 @@ class SeriesReturnValue(object):
         """
         type_check_errors: List[PandasTypeCheckError] = []
 
-        if series.dtype != self.dtype:
+        # Validate Pandera series schema if used as expected series type
+        if pandera_support and isinstance(self.dtype, pa.SeriesSchema):
+            try:
+                self.dtype.validate(series, lazy=True)
+            except pa.errors.SchemaErrors as err:
+                # Catch Pandera validation exception and transform it into type check errors
+                pandera_validation_errors = pandera_schema_errors_to_type_check_errors(err)
+                type_check_errors.extend(pandera_validation_errors)
+        # Compare dtypes of both series otherwise
+        elif series.dtype != self.dtype:
             error_msg = f"Expected Series of type '{self.dtype}' but found type '{series.dtype}'"
             type_check_error = PandasTypeCheckError(error_msg=error_msg,
                                                     expected_type=self.dtype,
@@ -97,10 +115,14 @@ class SeriesArgument(SeriesReturnValue):
 
     Attributes:
         name: Name of the argument.
-        dtype: Expected data type for the Series.
+        dtype:
+            Expected data type for the Series.
+
+            If the library has been installed with Pandera support this attribute can also hold a Pandera
+            ``SeriesSchema``. Pandera schemas will be validated lazily to capture all validation errors.
     """
 
-    def __init__(self, name: str, dtype: Union[str, np.dtype, ExtensionDtype]):
+    def __init__(self, name: str, dtype: SeriesType):
         super().__init__(dtype)
         self.name = name
 
@@ -124,8 +146,7 @@ class DataFrameReturnValue(object):
             Python type to mark that one or more of the DataFrame's columns have the given column-specific types.
 
             If the library has been installed with Pandera support this attribute can also hold a Pandera
-            ``DataFrameSchema`` or ``SeriesSchema``. Pandera schemas will be validated lazily to capture all
-            validation errors.
+            ``DataFrameSchema``. Pandera schemas will be validated lazily to capture all validation errors.
     """
 
     def __init__(self, dtype: DataFrameType):
@@ -218,8 +239,7 @@ class DataFrameArgument(DataFrameReturnValue):
             Python type to mark that one or more of the DataFrame's columns have the given column-specific types.
 
             If the library has been installed with Pandera support this attribute can also hold a Pandera
-            ``DataFrameSchema`` or ``SeriesSchema``. Pandera schemas will be validated lazily to capture all
-            validation errors.
+            ``DataFrameSchema``. Pandera schemas will be validated lazily to capture all validation errors.
     """
 
     def __init__(self, name: str, dtype: DataFrameType):
