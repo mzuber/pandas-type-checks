@@ -13,7 +13,9 @@ except ImportError:
 
 from pandas.core.dtypes.base import ExtensionDtype
 
-from pandas_type_checks.errors import PandasTypeCheckError, pandera_schema_errors_to_type_check_errors
+from pandas_type_checks.errors import PandasTypeCheckError
+if pandera_support:
+    from pandas_type_checks.pandera_support import pandera_schema_errors_to_type_check_errors
 
 
 default_logger = logging.getLogger('pandas_type_checks')
