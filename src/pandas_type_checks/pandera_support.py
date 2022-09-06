@@ -23,14 +23,7 @@ def pandera_schema_errors_to_type_check_errors(schema_errors: SchemaErrors) -> L
         # Check if error relates to a specific column
         column_name: Optional[str] = None
         if schema_error.failure_cases is not None:
-            if "column" in schema_error.failure_cases:
-                column_name = schema_error.failure_cases["column"]
-            else:
-                column_name = (
-                    schema_error.schema.name
-                    if schema_error == "schema_component_check"
-                    else None
-                )
+            column_name = schema_error.schema.name if schema_error == "schema_component_check" else None
 
         type_check_error = PandasTypeCheckError(error_msg=str(schema_error), column_name=column_name)
         type_check_errors.append(type_check_error)
