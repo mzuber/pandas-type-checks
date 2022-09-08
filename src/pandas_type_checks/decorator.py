@@ -5,9 +5,8 @@ from typing import List, Dict, Optional, Union
 import pandas as pd
 
 from pandas_type_checks.core import DataFrameArgument, DataFrameReturnValue, SeriesArgument, SeriesReturnValue
-from pandas_type_checks.core import PandasTypeCheckError
 from pandas_type_checks.core import config as pandas_type_checks_config
-from pandas_type_checks.util import build_exception_message
+from pandas_type_checks.errors import PandasTypeCheckError, build_exception_message
 
 
 class PandasTypeCheckDecoratorException(Exception):
@@ -31,7 +30,7 @@ def pandas_type_check(*args, **kwargs):
         PandasTypeCheckDecoratorException: An error occurred specifying the Pandas types for the arguments and return
             value of the decorated function
         TypeError: Errors occurred when type checking the Pandas data frame and series arguments and return value of
-            the decorated function against the given type specification
+            the decorated function against the given type specifications
     """
 
     def pandas_type_check_decorator(func):

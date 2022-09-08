@@ -32,6 +32,12 @@ Packages for all released versions are available at the
 pip install pandas-type-checks
 ```
 
+The library can also be installed with support for additional functionality:
+
+```
+pip install pandas-type-checks[pandera] # Support for Pandera data frame and series schemas
+```
+
 Usage Example
 -------------
 
@@ -121,6 +127,42 @@ The global configuration object `pandas_type_checks.config` can be used to confi
   Default: `False`
 - `config.logger` (`logging.Logger`): Logger to be used for logging type errors when the `log_type_errors` flag is enabled.
   When no logger is specified via the configuration a built-in default logger is used.
+
+Pandera Support
+---------------
+
+This library can be installed which additional support for [Pandera](https://github.com/unionai-oss/pandera):
+
+```
+pip install pandas-type-checks[pandera]
+```
+
+In this case Pandera [DataFrameSchema](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.schemas.DataFrameSchema.html)
+and [SeriesSchema](https://pandera.readthedocs.io/en/stable/reference/generated/pandera.schemas.SeriesSchema.html)
+can be used as type specifications for data frame and series arguments and return values.
+
+```python
+import pandas as pd
+import pandera as pa
+import numpy as np
+import pandas_type_checks as pd_types
+
+@pd_types.pandas_type_check(
+    pd_types.DataFrameArgument('data',
+                               pa.DataFrameSchema({
+                                 'A': pa.Column(np.dtype('float64'), checks=pa.Check.le(10.0)),
+                                 'B': pa.Column(np.dtype('int64'), checks=pa.Check.lt(2)),
+                                 'C': pa.Column(np.dtype('bool'))
+                               })),
+    pd_types.SeriesArgument('filter_values', 'int64'),
+    pd_types.DataFrameReturnValue({
+        'B': np.dtype('int64'),
+        'C': np.dtype('bool')
+    })
+)
+def filter_rows_and_remove_column(data: pd.DataFrame, filter_values: pd.Series) -> pd.DataFrame:
+    return data[data['B'].isin(filter_values.values)].drop('A', axis=1)
+```
 
 References
 ----------

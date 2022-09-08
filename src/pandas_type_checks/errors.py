@@ -1,6 +1,34 @@
-from typing import List, Dict
+from typing import List, Dict, Optional, Any
 
-from pandas_type_checks.core import PandasTypeCheckError
+import pandas as pd
+
+
+class PandasTypeCheckError(object):
+    """
+    Error-related information when type checking a Pandas data frame or series.
+
+    Attributes:
+        error_msg: Error message
+        expected_type: (Optional) Expected type for the data frame column or series
+        given_type: (Optional) Actual type of the data frame column or series
+        column_name: (Optional) Data frame column name, set if error occurred
+                     when type checking a column of a data frame
+        pandera_failure_cases: (Optional) Data frame containing the failure cases found
+                               by the Pandera data frame or series validation.
+                               This attribute effectively contains the 'failure_cases'
+                               property of a
+    """
+
+    def __init__(self, error_msg: str,
+                 expected_type: Optional[Any] = None,
+                 given_type: Optional[Any] = None,
+                 column_name: Optional[str] = None,
+                 pandera_failure_cases: Optional[pd.DataFrame] = None):
+        self.error_msg = error_msg
+        self.expected_type = expected_type
+        self.given_type = given_type
+        self.column_name = column_name
+        self.pandera_failure_cases = pandera_failure_cases
 
 
 def build_exception_message(func_name: str,

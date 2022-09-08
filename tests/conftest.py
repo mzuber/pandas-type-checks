@@ -34,9 +34,9 @@ def data_frame_type() -> Dict[str, Any]:
 @pytest.fixture(scope='session')
 def data_frame(data_frame_type) -> pd.DataFrame:
     return pd.DataFrame({
-        'A': [1.0],
-        'B': [1],
-        'C': ['foo']
+        'A': [1.0, 2.0],
+        'B': [1, 2],
+        'C': ['foo', 'bar']
     }).astype(data_frame_type)
 
 
@@ -69,10 +69,10 @@ def extended_data_frame_type() -> Dict[str, Any]:
 @pytest.fixture(scope='session')
 def extended_data_frame(extended_data_frame_type) -> pd.DataFrame:
     return pd.DataFrame({
-        'A': [1.0],
-        'B': [1],
-        'C': ['foo'],
-        'D': ['bar']
+        'A': [1.0, 2.0],
+        'B': [1, 2],
+        'C': ['foo', 'bar'],
+        'D': ['baz', 'baz']
     }).astype(extended_data_frame_type)
 
 
