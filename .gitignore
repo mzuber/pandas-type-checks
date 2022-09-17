@@ -137,3 +137,6 @@ dmypy.json
 
 # Tox test runner reports
 junit
+
+# Generated docs
+docs/build

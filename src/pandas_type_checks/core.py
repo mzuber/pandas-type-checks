@@ -26,16 +26,19 @@ class PandasTypeCheckConfiguration(object):
     A class for global configuration of the Pandas type check functionality.
 
     Attributes:
-        enable_type_checks (bool): Flag for enabling/disabling type checks for specified arguments and return
-            values. Defaults to True. This flag can be used to globally enable or disable the type checker in
-            certain environments.
-        strict_type_checks (bool): Flag for strict type check mode. Defaults to False.
+        enable_type_checks (bool):
+            Flag for enabling/disabling type checks for specified arguments and return values. Defaults to True.
+            This flag can be used to globally enable or disable the type checker in certain environments.
+        strict_type_checks (bool):
+            Flag for strict type check mode. Defaults to False.
             If strict type checking is enabled data frames cannot contain columns which are not part of the type
             specification against which they are checked. Non-strict type checking in that sense allows a form of
             structural subtyping for data frames.
-        log_type_errors (bool): Flag indicating that type errors for Pandas dataframes or series values should be
-            logged instead of raising a 'TypeError' exception. Defaults to False.
-        logger (logging.Logger): Logger to be used for logging type errors when 'log_type_errors' flag is enabled.
+        log_type_errors (bool):
+            Flag indicating that type errors for Pandas dataframes or series values should be logged instead of
+            raising a 'TypeError' exception. Defaults to False.
+        logger (logging.Logger):
+            Logger to be used for logging type errors when 'log_type_errors' flag is enabled.
     """
 
     def __init__(self, enable_type_checks: bool = True,
@@ -114,7 +117,8 @@ class SeriesArgument(SeriesReturnValue):
     The expected data type for a Pandas Series argument of a function or method.
 
     Attributes:
-        name: Name of the argument.
+        name:
+            Name of the argument.
         dtype:
             Expected data type for the Series.
 
@@ -161,8 +165,10 @@ class DataFrameReturnValue(object):
         """Type check the structure of the given data frame against this type specification.
 
         Args:
-            data_frame: Pandas data frame to type check against this type specification
-            strict: Flag for strict type check mode. If strict type checking is enabled the given dataframe
+            data_frame:
+                Pandas data frame to type check against this type specification
+            strict:
+                Flag for strict type check mode. If strict type checking is enabled the given dataframe
                 cannot contain columns which are not part of this type specification. Disabling strict type
                 checking in that sense allows a form of structural subtyping for data frames.
 
