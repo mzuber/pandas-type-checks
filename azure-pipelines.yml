@@ -36,12 +36,12 @@ jobs:
         displayName: Publish test results
         inputs:
           testResultsFormat: 'JUnit'
-          testResultsFiles: '$(Build.SourcesDirectory)/junit/test_results.xml'
+          testResultsFiles: '$(Build.SourcesDirectory)/junit/optional/test_results.xml'
       - task: PublishCodeCoverageResults@1
         displayName: Publish code coverage results
         inputs:
           codeCoverageTool: 'cobertura'
-          summaryFileLocation: '$(Build.SourcesDirectory)/junit/coverage-reports/coverage.xml'
+          summaryFileLocation: '$(Build.SourcesDirectory)/junit/optional/coverage-reports/coverage.xml'
           pathToSources: '$(Build.SourcesDirectory)/src/'
       # Publish test results and code coverage report artifacts for later use in Sonar scan
       - task: PublishPipelineArtifact@1
