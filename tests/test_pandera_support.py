@@ -130,9 +130,11 @@ def test_type_error_for_data_frame_argument_with_pandera_schema_with_checks(data
                              f"failure cases:\n   index  failure_case\n0      1             2\n"
                              f"\t\\<Schema Column\\(name=C, type=DataType\\(string\\[python\\]\\)\\)\\> "
                              f"failed element-wise validator 0:\n"
-                             f"\\<Check str_startswith: str_startswith\\(f\\)\\>\n"
+                             f"\\<Check str_startswith: str_startswith\\('f'\\)\\>\n"
                              f"failure cases:\n   index failure_case\n0      1          bar"):
         test_function(data_frame)
+
+#
 
 
 def test_type_error_for_data_frame_return_value_with_pandera_schema_with_checks(data_frame_schema_with_checks,
@@ -153,7 +155,7 @@ def test_type_error_for_data_frame_return_value_with_pandera_schema_with_checks(
                              f"failure cases:\n   index  failure_case\n0      1             2\n"
                              f"\t\\<Schema Column\\(name=C, type=DataType\\(string\\[python\\]\\)\\)\\> "
                              f"failed element-wise validator 0:\n"
-                             f"\\<Check str_startswith: str_startswith\\(f\\)\\>\n"
+                             f"\\<Check str_startswith: str_startswith\\('f'\\)\\>\n"
                              f"failure cases:\n   index failure_case\n0      1          bar"):
         test_function()
 
