@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pandera.errors import SchemaErrors, SchemaError
+from pandera.errors import SchemaErrors
 
 from pandas_type_checks.errors import PandasTypeCheckError
 
@@ -17,9 +17,7 @@ def pandera_schema_errors_to_type_check_errors(schema_errors: SchemaErrors) -> L
     """
     type_check_errors: List[PandasTypeCheckError] = []
 
-    for schema_error_dict in schema_errors.schema_errors:
-        schema_error: SchemaError = schema_error_dict['error']
-
+    for schema_error in schema_errors.schema_errors:
         # Check if error relates to a specific column
         column_name: Optional[str] = None
         if schema_error.failure_cases is not None:
