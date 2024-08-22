@@ -1,1 +1,1 @@
-pandera>=0.15.0
+pandera>=0.20.3
