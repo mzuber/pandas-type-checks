@@ -1,3 +1,5 @@
+import re
+
 import pytest
 import numpy as np
 import pandas as pd
@@ -58,11 +60,11 @@ def test_type_error_for_data_frame_argument_with_pandera_schema(data_frame_schem
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
         return arg
 
-    with pytest.raises(TypeError,
-                       match=f"Pandas type error in function '{test_function.__name__}'\n"
-                             f"Type error in argument 'arg':\n"
-                             f"\tcolumn 'B' not in dataframe\n   A    C\n0  1  foo\n"
-                             f"\texpected series 'A' to have type float64, got int64"):
+    with pytest.raises(TypeError, match=re.escape(
+            f"Pandas type error in function '{test_function.__name__}'\n"
+            f"Type error in argument 'arg':\n"
+            f"\tcolumn 'B' not in dataframe. Columns in dataframe: ['A', 'C']\n"
+            f"\texpected series 'A' to have type float64, got int64")):
         test_function(wrong_data_frame)
 
 
@@ -74,11 +76,11 @@ def test_type_error_for_data_frame_return_value_with_pandera_schema(data_frame_s
     def test_function() -> pd.DataFrame:
         return wrong_data_frame
 
-    with pytest.raises(TypeError,
-                       match=f"Pandas type error in function '{test_function.__name__}'\n"
-                             f"Type error in return value:\n"
-                             f"\tcolumn 'B' not in dataframe\n   A    C\n0  1  foo\n"
-                             f"\texpected series 'A' to have type float64, got int64"):
+    with pytest.raises(TypeError, match=re.escape(
+            f"Pandas type error in function '{test_function.__name__}'\n"
+            f"Type error in return value:\n"
+            f"\tcolumn 'B' not in dataframe. Columns in dataframe: ['A', 'C']\n"
+            f"\texpected series 'A' to have type float64, got int64")):
         test_function()
 
 
@@ -121,17 +123,11 @@ def test_type_error_for_data_frame_argument_with_pandera_schema_with_checks(data
     def test_function(arg: pd.DataFrame) -> pd.DataFrame:
         return arg
 
-    with pytest.raises(TypeError,
-                       match=f"Pandas type error in function '{test_function.__name__}'\n"
-                             f"Type error in argument 'arg':\n"
-                             f"\t\\<Schema Column\\(name=B, type=DataType\\(int64\\)\\)\\> "
-                             f"failed element-wise validator 0:\n"
-                             f"\\<Check less_than: less_than\\(2\\)\\>\n"
-                             f"failure cases:\n   index  failure_case\n0      1             2\n"
-                             f"\t\\<Schema Column\\(name=C, type=DataType\\(string\\[python\\]\\)\\)\\> "
-                             f"failed element-wise validator 0:\n"
-                             f"\\<Check str_startswith: str_startswith\\('f'\\)\\>\n"
-                             f"failure cases:\n   index failure_case\n0      1          bar"):
+    with pytest.raises(TypeError, match=re.escape(
+            f"Pandas type error in function '{test_function.__name__}'\n"
+            f"Type error in argument 'arg':\n"
+            f"\tColumn 'B' failed element-wise validator number 0: less_than(2) failure cases: 2\n"
+            f"\tColumn 'C' failed element-wise validator number 0: str_startswith('f') failure cases: bar")):
         test_function(data_frame)
 
 #
@@ -146,17 +142,11 @@ def test_type_error_for_data_frame_return_value_with_pandera_schema_with_checks(
     def test_function() -> pd.DataFrame:
         return data_frame
 
-    with pytest.raises(TypeError,
-                       match=f"Pandas type error in function '{test_function.__name__}'\n"
-                             f"Type error in return value:\n"
-                             f"\t\\<Schema Column\\(name=B, type=DataType\\(int64\\)\\)\\> "
-                             f"failed element-wise validator 0:\n"
-                             f"\\<Check less_than: less_than\\(2\\)\\>\n"
-                             f"failure cases:\n   index  failure_case\n0      1             2\n"
-                             f"\t\\<Schema Column\\(name=C, type=DataType\\(string\\[python\\]\\)\\)\\> "
-                             f"failed element-wise validator 0:\n"
-                             f"\\<Check str_startswith: str_startswith\\('f'\\)\\>\n"
-                             f"failure cases:\n   index failure_case\n0      1          bar"):
+    with pytest.raises(TypeError, match=re.escape(
+            f"Pandas type error in function '{test_function.__name__}'\n"
+            f"Type error in return value:\n"
+            f"\tColumn 'B' failed element-wise validator number 0: less_than(2) failure cases: 2\n"
+            f"\tColumn 'C' failed element-wise validator number 0: str_startswith('f') failure cases: bar")):
         test_function()
 
 
